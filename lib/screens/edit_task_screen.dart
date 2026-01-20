@@ -71,38 +71,40 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: const Text('Add Step', style: TextStyle(fontSize: 28)),
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: textController,
-                  decoration: const InputDecoration(
-                    labelText: 'Step instruction',
-                    labelStyle: TextStyle(fontSize: 20),
-                  ),
-                  style: const TextStyle(fontSize: 22),
-                  maxLines: 3,
-                  autofocus: true,
-                ),
-                if (imagePath != null) ...[
-                  const SizedBox(height: 16),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      File(imagePath!),
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: textController,
+                    decoration: const InputDecoration(
+                      labelText: 'Step instruction',
+                      labelStyle: TextStyle(fontSize: 20),
                     ),
+                    style: const TextStyle(fontSize: 22),
+                    maxLines: 3,
+                    autofocus: true,
                   ),
+                  if (imagePath != null) ...[
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(
+                        File(imagePath!),
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ],
                 ],
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             ElevatedButton.icon(
               onPressed: () async {
@@ -123,7 +125,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             const Spacer(),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(fontSize: 20)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 20,
+                  decoration: TextDecoration.none,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
