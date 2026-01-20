@@ -336,62 +336,57 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Steps list (fixed height to avoid nested scroll issues)
-            SizedBox(
-              height: 400,
-              child: _steps.isEmpty
-                  ? Center(
+            // Steps list (shrink-wrapped to avoid overflow)
+            _steps.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Center(
                       child: Text(
                         'No steps yet. Tap "Add Step" to start!',
                         style: TextStyle(fontSize: 20, color: Colors.grey[500]),
                       ),
-                    )
-                  : ReorderableListView.builder(
-                      itemCount: _steps.length,
-                      onReorder: (oldIndex, newIndex) {
-                        setState(() {
-                          if (newIndex > oldIndex) newIndex--;
-                          final step = _steps.removeAt(oldIndex);
-                          _steps.insert(newIndex, step);
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final step = _steps[index];
-                        return Card(
-                          key: ValueKey(step.id),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: pastelColors[_selectedColorIndex],
-                              child: Text(
-                                '${index + 1}',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _steps.length,
+                    itemBuilder: (context, index) {
+                      final step = _steps[index];
+                      return Card(
+                        key: ValueKey(step.id),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: pastelColors[_selectedColorIndex],
+                            child: Text(
+                              '${index + 1}',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
                               ),
                             ),
-                            title: Text(
-                              step.text,
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                            subtitle: step.imagePath != null
-                                ? const Text(
-                                    '📷 Has photo',
-                                    style: TextStyle(fontSize: 16),
-                                  )
-                                : null,
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              iconSize: 28,
-                              onPressed: () => _deleteStep(index),
-                            ),
                           ),
-                        );
-                      },
-                    ),
-            ),
+                          title: Text(
+                            step.text,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          subtitle: step.imagePath != null
+                              ? const Text(
+                                  '📷 Has photo',
+                                  style: TextStyle(fontSize: 16),
+                                )
+                              : null,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            iconSize: 28,
+                            onPressed: () => _deleteStep(index),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
       ),
