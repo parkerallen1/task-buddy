@@ -68,89 +68,76 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Step', style: TextStyle(fontSize: 28)),
-        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-        content: StatefulBuilder(
-          builder: (context, setDialogState) => SizedBox(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add Step', style: TextStyle(fontSize: 28)),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: SizedBox(
             width: double.maxFinite,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: textController,
-                          decoration: const InputDecoration(
-                            labelText: 'Step instruction',
-                            labelStyle: TextStyle(fontSize: 20),
-                          ),
-                          style: const TextStyle(fontSize: 22),
-                          maxLines: 3,
-                          autofocus: true,
-                        ),
-                        const SizedBox(height: 20),
-                        if (imagePath != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                File(imagePath!),
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final image = await _picker.pickImage(source: ImageSource.camera);
-                            if (image != null) {
-                              final appDir = await getApplicationDocumentsDirectory();
-                              final fileName = 'step_${DateTime.now().millisecondsSinceEpoch}.jpg';
-                              final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
-                              setDialogState(() => imagePath = savedImage.path);
-                            }
-                          },
-                          icon: const Icon(Icons.camera_alt, size: 28),
-                          label: Text(
-                            imagePath == null ? 'Take Photo' : 'Retake Photo',
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
+                TextField(
+                  controller: textController,
+                  decoration: const InputDecoration(
+                    labelText: 'Step instruction',
+                    labelStyle: TextStyle(fontSize: 20),
+                  ),
+                  style: const TextStyle(fontSize: 22),
+                  maxLines: 3,
+                  autofocus: true,
+                ),
+                if (imagePath != null) ...[
+                  const SizedBox(height: 16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(imagePath!),
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                ),
+                ],
+                const SizedBox(height: 16),
               ],
             ),
           ),
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                final image = await _picker.pickImage(source: ImageSource.camera);
+                if (image != null) {
+                  final appDir = await getApplicationDocumentsDirectory();
+                  final fileName = 'step_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                  final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+                  setDialogState(() => imagePath = savedImage.path);
+                }
+              },
+              icon: const Icon(Icons.camera_alt, size: 20),
+              label: Text(
+                imagePath == null ? '📷 Photo' : '📷 Retake',
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(fontSize: 20)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (textController.text.trim().isNotEmpty) {
+                  Navigator.pop(context, {
+                    'text': textController.text.trim(),
+                    'imagePath': imagePath,
+                  });
+                }
+              },
+              child: const Text('Add', style: TextStyle(fontSize: 20)),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(fontSize: 20)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (textController.text.trim().isNotEmpty) {
-                Navigator.pop(context, {
-                  'text': textController.text.trim(),
-                  'imagePath': imagePath,
-                });
-              }
-            },
-            child: const Text('Add', style: TextStyle(fontSize: 20)),
-          ),
-        ],
       ),
     ).then((result) {
       if (result != null) {
@@ -188,25 +175,31 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFB4A7D6),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: const [
-                  Icon(Icons.check, size: 28),
-                  SizedBox(width: 8),
-                  Text('Save', style: TextStyle(fontSize: 22)),
+                  Icon(Icons.check, size: 24),
+                  SizedBox(width: 10),
+                  Text('Save', style: TextStyle(fontSize: 22, height: 1.0)),
                 ],
               ),
             ),
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Title field
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -217,83 +210,113 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Main Picture:',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 12),
-            if (_mainImagePath != null)
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.file(
-                      File(_mainImagePath!),
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: IconButton(
-                      onPressed: () => setState(() => _mainImagePath = null),
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.red,
+            
+            // Compact row: Main picture + Color picker
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Main picture section
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Main Picture:',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            if (_mainImagePath == null)
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final image = await _picker.pickImage(source: ImageSource.camera);
-                  if (image != null) {
-                    final appDir = await getApplicationDocumentsDirectory();
-                    final fileName = 'main_${DateTime.now().millisecondsSinceEpoch}.jpg';
-                    final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
-                    setState(() => _mainImagePath = savedImage.path);
-                  }
-                },
-                icon: const Icon(Icons.camera_alt, size: 28),
-                label: const Text('Take Main Photo', style: TextStyle(fontSize: 20)),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                ),
-              ),
-            const SizedBox(height: 24),
-            const Text(
-              'Choose Color:',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              children: List.generate(
-                pastelColors.length,
-                (index) => GestureDetector(
-                  onTap: () => setState(() => _selectedColorIndex = index),
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: pastelColors[index],
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _selectedColorIndex == index
-                            ? Colors.black
-                            : Colors.transparent,
-                        width: 3,
-                      ),
-                    ),
+                      const SizedBox(height: 8),
+                      if (_mainImagePath != null)
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(
+                                File(_mainImagePath!),
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: IconButton(
+                                onPressed: () => setState(() => _mainImagePath = null),
+                                icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  padding: const EdgeInsets.all(4),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (_mainImagePath == null)
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final image = await _picker.pickImage(source: ImageSource.camera);
+                            if (image != null) {
+                              final appDir = await getApplicationDocumentsDirectory();
+                              final fileName = 'main_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                              final savedImage = await File(image.path).copy('${appDir.path}/$fileName');
+                              setState(() => _mainImagePath = savedImage.path);
+                            }
+                          },
+                          icon: const Icon(Icons.camera_alt, size: 20),
+                          label: const Text('Take Photo', style: TextStyle(fontSize: 16)),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ),
+                const SizedBox(width: 24),
+                
+                // Color picker section
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Choose Color:',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: List.generate(
+                          pastelColors.length,
+                          (index) => GestureDetector(
+                            onTap: () => setState(() => _selectedColorIndex = index),
+                            child: Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: pastelColors[index],
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: _selectedColorIndex == index
+                                      ? Colors.black
+                                      : Colors.transparent,
+                                  width: 3,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
+            
+            // Steps section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -312,7 +335,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            Expanded(
+            
+            // Steps list (fixed height to avoid nested scroll issues)
+            SizedBox(
+              height: 400,
               child: _steps.isEmpty
                   ? Center(
                       child: Text(
