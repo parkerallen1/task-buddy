@@ -29,12 +29,14 @@ class Task {
   final String title;
   final int colorIndex;
   final List<TaskStep> steps;
+  final String? mainImagePath;
 
   Task({
     required this.id,
     required this.title,
     required this.colorIndex,
     required this.steps,
+    this.mainImagePath,
   });
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +44,7 @@ class Task {
         'title': title,
         'colorIndex': colorIndex,
         'steps': steps.map((s) => s.toJson()).toList(),
+        'mainImagePath': mainImagePath,
       };
 
   factory Task.fromJson(Map<String, dynamic> json) => Task(
@@ -51,5 +54,6 @@ class Task {
         steps: (json['steps'] as List)
             .map((s) => TaskStep.fromJson(s as Map<String, dynamic>))
             .toList(),
+        mainImagePath: json['mainImagePath'] as String?,
       );
 }

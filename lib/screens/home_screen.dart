@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 import '../services/storage_service.dart';
@@ -165,7 +166,8 @@ class _TaskCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: color,
+          color: Colors.white,
+          border: Border.all(color: color, width: 4),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -177,33 +179,44 @@ class _TaskCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      task.title,
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${task.steps.length} step${task.steps.length == 1 ? '' : 's'}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black.withOpacity(0.6),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (task.mainImagePath != null)
+                    Expanded(
+                      flex: 2,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          File(task.mainImagePath!),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  if (task.mainImagePath != null) const SizedBox(height: 12),
+                  Text(
+                    task.title,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${task.steps.length} step${task.steps.length == 1 ? '' : 's'}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black.withOpacity(0.6),
+                    ),
+                  ),
+                ],
               ),
             ),
             if (isEditMode)
