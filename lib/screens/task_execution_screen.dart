@@ -77,175 +77,193 @@ class _TaskExecutionScreenState extends State<TaskExecutionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF8F3),
       appBar: AppBar(
-        title: Text(
-          widget.task.title,
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                widget.task.title,
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              'Step ${_currentStepIndex + 1}/${widget.task.steps.length}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Column(
         children: [
-          // Progress bar
+          // Compact progress bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Step ${_currentStepIndex + 1} of ${widget.task.steps.length}',
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 12,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation(color),
+              ),
+            ),
+          ),
+          
+          // Image - takes up most of the screen
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: step.imagePath != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.file(
+                        File(step.imagePath!),
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                      ),
+                    )
+                  : Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 120,
+                        color: Colors.grey[300],
+                      ),
                     ),
-                    Text(
-                      '${(progress * 100).toInt()}%',
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 16,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation(color),
-                  ),
+            ),
+          ),
+          
+          // Bottom controls row
+          Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Step content
-          Expanded(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Image
-                    if (step.imagePath != null)
-                      Expanded(
-                        flex: 2,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: Image.file(
-                            File(step.imagePath!),
-                            fit: BoxFit.contain,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Back button row (if not first step)
+                if (_currentStepIndex > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _previousStep,
+                        icon: const Icon(Icons.arrow_back, size: 28),
+                        label: const Text('Back', style: TextStyle(fontSize: 22)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[300],
+                          foregroundColor: Colors.black87,
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),
-                    const SizedBox(height: 32),
-                    
-                    // Text with speaker button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => _speak(step.text),
+                    ),
+                  ),
+                
+                // Main control row
+                SizedBox(
+                  height: 80,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Text box (scrollable)
+                      Expanded(
+                        flex: 3,
                         child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(32),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: color, width: 3),
+                            color: color.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: color, width: 2),
                           ),
-                          child: Column(
+                          child: SingleChildScrollView(
+                            child: Text(
+                              step.text,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      
+                      // Tap to hear button
+                      Expanded(
+                        flex: 1,
+                        child: ElevatedButton(
+                          onPressed: () => _speak(step.text),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFB4A7D6),
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.volume_up,
-                                size: 48,
-                                color: Colors.black.withOpacity(0.6),
-                              ),
-                              const SizedBox(height: 16),
-                              Expanded(
-                                child: Center(
-                                  child: Text(
-                                    step.text,
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
+                              Icon(Icons.volume_up, size: 32),
+                              SizedBox(height: 4),
                               Text(
-                                'Tap to hear',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black.withOpacity(0.5),
-                                ),
+                                'Hear',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          
-          // Navigation buttons
-          Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Previous button
-                if (_currentStepIndex > 0)
-                  ElevatedButton.icon(
-                    onPressed: _previousStep,
-                    icon: const Icon(Icons.arrow_back, size: 32),
-                    label: const Text('Back', style: TextStyle(fontSize: 24)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 36,
-                        vertical: 24,
+                      const SizedBox(width: 12),
+                      
+                      // Done button
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: _completeStep,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF81C784),
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _currentStepIndex == widget.task.steps.length - 1
+                                    ? Icons.check_circle
+                                    : Icons.check,
+                                size: 36,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _currentStepIndex == widget.task.steps.length - 1
+                                    ? 'Finish!'
+                                    : 'Done',
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  )
-                else
-                  const SizedBox(width: 120),
-                
-                // Done button
-                ElevatedButton.icon(
-                  onPressed: _completeStep,
-                  icon: Icon(
-                    _currentStepIndex == widget.task.steps.length - 1
-                        ? Icons.check_circle
-                        : Icons.check,
-                    size: 36,
-                  ),
-                  label: Text(
-                    _currentStepIndex == widget.task.steps.length - 1
-                        ? 'Finish!'
-                        : 'Done',
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF81C784),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 48,
-                      vertical: 28,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    ],
                   ),
                 ),
               ],
