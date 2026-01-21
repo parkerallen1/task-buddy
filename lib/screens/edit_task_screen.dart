@@ -177,26 +177,18 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         elevation: 0,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: ElevatedButton(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: ElevatedButton.icon(
               onPressed: _saveTask,
+              icon: const Icon(Icons.check, size: 22),
+              label: const Text('Save', style: TextStyle(fontSize: 20)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFB4A7D6),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Icon(Icons.check, size: 24),
-                  SizedBox(width: 10),
-                  Text('Save', style: TextStyle(fontSize: 22, height: 1.0)),
-                ],
               ),
             ),
           ),
